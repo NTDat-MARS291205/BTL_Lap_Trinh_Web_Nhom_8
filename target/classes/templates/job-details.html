@@ -147,55 +147,25 @@
                 </div>
                 <div class="infor-main-bottom">
                     <div class="infor-main-apply" >
-
-<!--                        <form th:action="@{/job-details/apply/{id}(id=${jobDetails.jobPostId})}"-->
-<!--                              th:object="${applyJob}" method="post" sec:authorize="hasAuthority('Job Seeker')">-->
-<!--                            <th:block th:if="${_csrf != null}">-->
-<!--                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>-->
-<!--                            </th:block>-->
-<!--                            <button-->
-<!--                                    class="apply-btn"-->
-<!--                                    type="submit"-->
-<!--                                    th:disabled="${alreadyApplied}"-->
-<!--                                    th:classappend="${alreadyApplied} ? ' applied' : ' not-applied'"-->
-<!--                                    th:text="${alreadyApplied} ? 'Đã ứng tuyển' : 'Ứng tuyển'">-->
-<!--                            </button>-->
-<!--                        </form>-->
-
-                        <form th:action="@{${alreadyApplied} ? '/job-details/unapply/' + ${jobDetails.jobPostId}
-                                : '/job-details/apply/'   + ${jobDetails.jobPostId}}"
-                              method="post" sec:authorize="hasAuthority('Job Seeker')">
+                        <form th:action="@{/job-details/apply/{id}(id=${jobDetails.jobPostId})}"
+                              th:object="${applyJob}" method="post" sec:authorize="hasAuthority('Job Seeker')">
                             <th:block th:if="${_csrf != null}">
                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                             </th:block>
-                            <button class="apply-btn"
+                            <button
+                                    class="apply-btn"
+                                    type="submit"
+                                    th:disabled="${alreadyApplied}"
                                     th:classappend="${alreadyApplied} ? ' applied' : ' not-applied'"
-                                    th:text="${alreadyApplied} ? 'Bỏ ứng tuyển' : 'Ứng tuyển'">
+                                    th:text="${alreadyApplied} ? 'Đã ứng tuyển' : 'Ứng tuyển'">
                             </button>
                         </form>
-
                         <form th:action="@{/dashboard/edit/{id}(id=${jobDetails.jobPostId})}" method="get" sec:authorize="hasAuthority('Recruiter')">
                             <button class="edit-btn" type="submit">Chỉnh sửa thông tin</button>
                         </form>
                     </div>
                     <div class="infor-main-save" >
-<!--                        <form th:action="@{/job-details/save/{id}(id=${jobDetails.jobPostId})}"-->
-<!--                              th:object="${applyJob}" method="post" sec:authorize="hasAuthority('Job Seeker')">-->
-<!--                            <th:block th:if="${_csrf != null}">-->
-<!--                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>-->
-<!--                            </th:block>-->
-<!--                            <button-->
-<!--                                    class="save-btn"-->
-<!--                                    type="submit"-->
-<!--                                    th:disabled="${alreadySaved}"-->
-<!--                                    th:classappend="${alreadySaved} ? ' saved' : ' not-saved'"-->
-<!--                                    th:text="${alreadySaved} ? 'Đã lưu' : 'Lưu'">-->
-<!--                            </button>-->
-
-<!--                        </form>-->
-
-<!--                        bỏ lưu công việc-->
-                        <form th:action="@{${alreadySaved} ? '/job-details/unsave/' + ${jobDetails.jobPostId} : '/job-details/save/' + ${jobDetails.jobPostId}}"
+                        <form th:action="@{/job-details/save/{id}(id=${jobDetails.jobPostId})}"
                               th:object="${applyJob}" method="post" sec:authorize="hasAuthority('Job Seeker')">
                             <th:block th:if="${_csrf != null}">
                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
@@ -203,12 +173,12 @@
                             <button
                                     class="save-btn"
                                     type="submit"
+                                    th:disabled="${alreadySaved}"
                                     th:classappend="${alreadySaved} ? ' saved' : ' not-saved'"
-                                    th:text="${alreadySaved} ? 'Bỏ lưu' : 'Lưu'">
+                                    th:text="${alreadySaved} ? 'Đã lưu' : 'Lưu'">
                             </button>
+
                         </form>
-
-
                         <form th:action="@{/dashboard/deleteJob/{id}(id=${jobDetails.jobPostId})}" method="post" sec:authorize="hasAuthority('Recruiter')">
                             <th:block th:if="${_csrf != null}">
                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
