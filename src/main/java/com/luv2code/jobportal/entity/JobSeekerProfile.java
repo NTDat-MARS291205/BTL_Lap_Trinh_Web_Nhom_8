@@ -1,6 +1,7 @@
 package com.luv2code.jobportal.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
 
@@ -22,10 +23,14 @@ public class JobSeekerProfile {
     private String state;
     private String country;
 
+    // ✅ Resume: Nullable khi tạo account (bắt buộc khi edit profile)
+    @Column(nullable = true)
     private String resume;
+    
     private String experience;
     private String certificate;
 
+    // ✅ ProfilePhoto: Nullable khi tạo account (bắt buộc khi edit profile)
     @Column(nullable = true, length = 64)
     private String profilePhoto;
 

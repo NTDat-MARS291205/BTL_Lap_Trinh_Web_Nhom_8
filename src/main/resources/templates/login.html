@@ -99,6 +99,32 @@
           <h1 class="auth-card-title mb-1">Đăng nhập</h1>
           <p class="muted mb-4">Chào mừng trở lại 👋</p>
 
+          <!-- ✅ Hiển thị error message khi đăng nhập sai -->
+          <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 8px; border-left: 4px solid #dc3545; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <i class="fa-solid fa-circle-xmark" style="font-size: 20px;"></i>
+              <div>
+                <strong>❌ Đăng nhập thất bại!</strong>
+                <br/>
+                <span style="font-size: 14px;">Email hoặc mật khẩu không chính xác. Vui lòng thử lại.</span>
+              </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+
+          <!-- ✅ Hiển thị success message khi đăng ký thành công -->
+          <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 8px; border-left: 4px solid #28a745; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <i class="fa-solid fa-circle-check" style="font-size: 20px;"></i>
+              <div>
+                <strong>✅ Đăng ký thành công!</strong>
+                <br/>
+                <span style="font-size: 14px;">Vui lòng đăng nhập bằng email và mật khẩu của bạn.</span>
+              </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+
           <form th:action="@{/login}" th:object="${user}" method="post">
             <div class="mb-3 input-icon">
               <label class="mb-1" for="email" style="font-weight:600;">Email</label>

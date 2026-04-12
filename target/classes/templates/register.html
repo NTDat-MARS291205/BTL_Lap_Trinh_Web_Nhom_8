@@ -33,12 +33,40 @@
         <h1 class="auth-card-title mb-1">Đăng ký tài khoản</h1>
         <p class="muted mb-4">Hoàn toàn miễn phí trong vài bước</p>
 
-        <form th:action="@{/register/new}" th:object="${user}" method="post">
+         <!-- Thông báo lỗi email trùng lặp -->
+         <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 8px; border-left: 4px solid #dc3545;">
+           <div style="display: flex; align-items: center; gap: 10px;">
+             <i class="fa-solid fa-circle-xmark" style="font-size: 20px;"></i>
+             <div>
+               <strong>Lỗi đăng ký!</strong>
+               <br/>
+               <span th:text="${error}" style="font-size: 14px;"></span>
+             </div>
+           </div>
+           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+         </div>
+
+         <!-- Thông báo thành công -->
+         <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 8px; border-left: 4px solid #28a745;">
+           <div style="display: flex; align-items: center; gap: 10px;">
+             <i class="fa-solid fa-circle-check" style="font-size: 20px;"></i>
+             <div>
+               <strong>Thành công!</strong>
+               <br/>
+               <span th:text="${success}" style="font-size: 14px;"></span>
+             </div>
+           </div>
+           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+         </div>
+
+        <form th:action="@{/register/new}" th:object="${user}" method="post" id="registerForm">
           <div class="mb-3 input-icon">
             <label class="mb-1" for="email" style="font-weight:600;">Email</label>
             <i class="fa-solid fa-envelope"></i>
-            <input id="email" placeholder="you@example.com" name="email" th:field="*{email}" type="email" class="form-control" required/ >
+            <input id="email" placeholder="you@example.com" name="email" th:field="*{email}" type="email" class="form-control" required/>
             <div class="helper">Chúng tôi sẽ không chia sẻ email của bạn.</div>
+            <!-- Thông báo lỗi email phía client -->
+            <small id="emailError" class="text-danger" style="display:none;"></small>
           </div>
           <div class="mb-3 input-icon">
             <label class="mb-1" for="password" style="font-weight:600;">Mật khẩu</label>
@@ -59,7 +87,7 @@
               </th:block>
             </select>
           </div>
-          <button type="submit" class="brand-btn">Đăng ký</button>
+          <button type="submit" class="brand-btn" id="submitBtn">Đăng ký</button>
         </form>
 
         <p class="text-center mt-3 mb-0">Đã có tài khoản? <a class="link" th:href="@{/login}">Đăng nhập</a></p>
@@ -81,6 +109,79 @@
         this.innerHTML = is ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
       });
     }
+
+    // ========== KIỂM TRA EMAIL REAL-TIME ==========
+    var emailInput = document.getElementById('email');
+    var emailError = document.getElementById('emailError');
+    var submitBtn = document.getElementById('submitBtn');
+    var emailCheckTimeout;
+
+    emailInput.addEventListener('input', function() {
+      clearTimeout(emailCheckTimeout);
+      var email = this.value.trim();
+
+      // Nếu email trống
+      if (!email) {
+        emailError.style.display = 'none';
+        submitBtn.disabled = false;
+        return;
+      }
+
+      // Kiểm tra định dạng email
+      var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(email)) {
+        emailError.textContent = '❌ Định dạng email không hợp lệ';
+        emailError.style.display = 'block';
+        emailError.className = 'text-warning';
+        submitBtn.disabled = true;
+        return;
+      }
+
+      // Delay 500ms rồi gọi API kiểm tra email
+      emailCheckTimeout = setTimeout(function() {
+        fetch('/api/check-email?email=' + encodeURIComponent(email), {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.exists) {
+            // Email đã tồn tại
+            emailError.textContent = '❌ ' + data.message;
+            emailError.className = 'text-danger';
+            emailError.style.display = 'block';
+            submitBtn.disabled = true;
+          } else {
+            // Email có thể sử dụng
+            emailError.textContent = '✅ Email có thể sử dụng';
+            emailError.className = 'text-success';
+            emailError.style.display = 'block';
+            submitBtn.disabled = false;
+          }
+        })
+        .catch(error => {
+          console.error('Lỗi kiểm tra email:', error);
+          emailError.style.display = 'none';
+          submitBtn.disabled = false;
+        });
+      }, 500);
+    });
+
+    // Kiểm tra tính hợp lệ của form khi submit
+    document.getElementById('registerForm').addEventListener('submit', function(event) {
+      var email = document.getElementById('email').value.trim();
+      var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!emailPattern.test(email)) {
+        event.preventDefault();
+        emailError.textContent = '❌ Địa chỉ email không hợp lệ.';
+        emailError.className = 'text-danger';
+        emailError.style.display = 'block';
+        return false;
+      }
+    });
   })();
 </script>
 </body>

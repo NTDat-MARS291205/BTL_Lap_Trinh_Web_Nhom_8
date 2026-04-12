@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.Optional;
@@ -34,21 +35,57 @@ public class UsersService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Transactional
     public Users addNew(Users users) {
-        users.setActive(true);
-        users.setRegistrationDate(new Date(System.currentTimeMillis()));
-        users.setPassword(passwordEncoder.encode(users.getPassword()));
-        Users savedUser = usersRepository.save(users);
-        int userTypeId = users.getUserTypeId().getUserTypeId();
+        try {
+            // ✅ Validate userTypeId
+            if (users.getUserTypeId() == null) {
+                throw new IllegalArgumentException("User type không được để trống");
+            }
 
-        if (userTypeId == 1) {
-            recruiterProfileRepository.save(new RecruiterProfile(savedUser));
-        }
-        else {
-            jobSeekerProfileRepository.save(new JobSeekerProfile(savedUser));
-        }
+            // ✅ Set user properties
+            users.setActive(true);
+            users.setRegistrationDate(new Date(System.currentTimeMillis()));
+            users.setPassword(passwordEncoder.encode(users.getPassword()));
+            
+            // ✅ Save user trước
+            System.out.println("💾 Saving user: " + users.getEmail());
+            Users savedUser = usersRepository.save(users);
+            System.out.println("✅ User saved with ID: " + savedUser.getUserId());
 
-        return savedUser;
+            // ✅ Sau đó mới tạo profile
+            int userTypeId = users.getUserTypeId().getUserTypeId();
+            System.out.println("🔍 User type: " + userTypeId);
+
+            try {
+                if (userTypeId == 1) {
+                    System.out.println("📋 Creating Recruiter Profile...");
+                    RecruiterProfile recruiterProfile = new RecruiterProfile(savedUser);
+                    recruiterProfileRepository.save(recruiterProfile);
+                    System.out.println("✅ Recruiter profile created");
+                }
+                else if (userTypeId == 2) {
+                    System.out.println("📋 Creating JobSeeker Profile...");
+                    JobSeekerProfile jobSeekerProfile = new JobSeekerProfile(savedUser);
+                    jobSeekerProfileRepository.save(jobSeekerProfile);
+                    System.out.println("✅ JobSeeker profile created");
+                }
+            } catch (Exception profileException) {
+                System.err.println("⚠️ Warning creating profile: " + profileException.getMessage());
+                profileException.printStackTrace();
+                // ⚠️ Profile creation failed nhưng user đã được tạo
+                // Profile sẽ được tự động tạo khi getCurrentUserProfile() được gọi
+                System.out.println("ℹ️ Profile will be created automatically on first login");
+            }
+
+            return savedUser;
+            
+        } catch (Exception e) {
+            // Catch tất cả exception
+            System.err.println("❌ Error in addNew(): " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi tạo tài khoản: " + e.getMessage(), e);
+        }
     }
 
     public Object getCurrentUserProfile() {
@@ -59,11 +96,26 @@ public class UsersService {
             String username = authentication.getName();
             Users users = usersRepository.findByEmail(username).orElseThrow(()-> new UsernameNotFoundException("Could not found " + "user"));
             int userId = users.getUserId();
+            
             if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("Recruiter"))) {
-                RecruiterProfile recruiterProfile = recruiterProfileRepository.findById(userId).orElse(new RecruiterProfile());
+                // ✅ Tìm hoặc tạo RecruiterProfile
+                RecruiterProfile recruiterProfile = recruiterProfileRepository.findById(userId).orElse(null);
+                if (recruiterProfile == null) {
+                    System.out.println("⚠️ RecruiterProfile not found for user: " + username + ". Creating...");
+                    recruiterProfile = new RecruiterProfile(users);
+                    recruiterProfile = recruiterProfileRepository.save(recruiterProfile);
+                    System.out.println("✅ RecruiterProfile created automatically");
+                }
                 return recruiterProfile;
             } else {
-                JobSeekerProfile jobSeekerProfile = jobSeekerProfileRepository.findById(userId).orElse(new JobSeekerProfile());
+                // ✅ Tìm hoặc tạo JobSeekerProfile
+                JobSeekerProfile jobSeekerProfile = jobSeekerProfileRepository.findById(userId).orElse(null);
+                if (jobSeekerProfile == null) {
+                    System.out.println("⚠️ JobSeekerProfile not found for user: " + username + ". Creating...");
+                    jobSeekerProfile = new JobSeekerProfile(users);
+                    jobSeekerProfile = jobSeekerProfileRepository.save(jobSeekerProfile);
+                    System.out.println("✅ JobSeekerProfile created automatically");
+                }
                 return jobSeekerProfile;
             }
         }

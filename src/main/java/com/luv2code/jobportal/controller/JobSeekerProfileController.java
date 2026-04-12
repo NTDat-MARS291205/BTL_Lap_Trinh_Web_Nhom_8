@@ -72,51 +72,82 @@ public class JobSeekerProfileController {
                          @RequestParam("image") MultipartFile image,
                          @RequestParam("pdf") MultipartFile pdf,
                          Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            Users user = usersRepository.findByEmail(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("User not found."));
-            jobSeekerProfile.setUserId(user);
-            jobSeekerProfile.setUserAccountId(user.getUserId());
-        }
-
-        List<Skills> skillsList = new ArrayList<>();
-        model.addAttribute("profile", jobSeekerProfile);
-        model.addAttribute("skills", skillsList);
-
-        for (Skills skills : jobSeekerProfile.getSkills()) {
-            skills.setJobSeekerProfile(jobSeekerProfile);
-        }
-
-        String imageName = "";
-        String resumeName = "";
-
-        if (!Objects.equals(image.getOriginalFilename(), "")) {
-            imageName = StringUtils.cleanPath(Objects.requireNonNull(image.getOriginalFilename()));
-            jobSeekerProfile.setProfilePhoto(imageName);
-        }
-
-        if (!Objects.equals(pdf.getOriginalFilename(), "")) {
-            resumeName = StringUtils.cleanPath(Objects.requireNonNull(pdf.getOriginalFilename()));
-            jobSeekerProfile.setResume(resumeName);
-        }
-
-        JobSeekerProfile seekerProfile = jobSeekerProfileService.addNew(jobSeekerProfile);
-
         try {
-            String uploadDir = "photos/candidate/" + jobSeekerProfile.getUserAccountId();
-            if (!Objects.equals(image.getOriginalFilename(), "")) {
-                FileUploadUtil.saveFile(uploadDir, imageName, image);
-            }
-            if (!Objects.equals(pdf.getOriginalFilename(), "")) {
-                FileUploadUtil.saveFile(uploadDir, resumeName, pdf);
-            }
-        }
-        catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
+            System.out.println("📝 [JobSeeker Profile] Saving profile...");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        return "redirect:/dashboard/";
+            if (!(authentication instanceof AnonymousAuthenticationToken)) {
+                Users user = usersRepository.findByEmail(authentication.getName()).orElseThrow(() -> new UsernameNotFoundException("User not found."));
+                jobSeekerProfile.setUserId(user);
+                jobSeekerProfile.setUserAccountId(user.getUserId());
+            }
+
+            List<Skills> skillsList = new ArrayList<>();
+            model.addAttribute("profile", jobSeekerProfile);
+            model.addAttribute("skills", skillsList);
+
+            for (Skills skills : jobSeekerProfile.getSkills()) {
+                skills.setJobSeekerProfile(jobSeekerProfile);
+            }
+
+            String imageName = "";
+            String resumeName = "";
+            List<String> errors = new ArrayList<>();
+
+            // ✅ VALIDATION: Kiểm tra CV (bắt buộc)
+            if (pdf.isEmpty() || Objects.equals(pdf.getOriginalFilename(), "")) {
+                errors.add("❌ CV không được để trống. Vui lòng upload file CV.");
+            } else {
+                resumeName = StringUtils.cleanPath(Objects.requireNonNull(pdf.getOriginalFilename()));
+                jobSeekerProfile.setResume(resumeName);
+            }
+
+            // ✅ VALIDATION: Kiểm tra ảnh (bắt buộc)
+            if (image.isEmpty() || Objects.equals(image.getOriginalFilename(), "")) {
+                errors.add("❌ Ảnh đại diện không được để trống. Vui lòng chọn ảnh.");
+            } else {
+                imageName = StringUtils.cleanPath(Objects.requireNonNull(image.getOriginalFilename()));
+                jobSeekerProfile.setProfilePhoto(imageName);
+            }
+
+            // 🚨 Nếu có lỗi validation → Trả về form với error messages
+            if (!errors.isEmpty()) {
+                System.out.println("❌ [JobSeeker Profile] Validation errors: " + errors);
+                model.addAttribute("errors", errors);
+                JobSeekerProfile currentProfile = jobSeekerProfileService.getOne(jobSeekerProfile.getUserAccountId()).orElse(jobSeekerProfile);
+                model.addAttribute("profile", currentProfile);
+                return "job-seeker-profile";
+            }
+
+            JobSeekerProfile seekerProfile = jobSeekerProfileService.addNew(jobSeekerProfile);
+            System.out.println("✅ [JobSeeker Profile] Profile saved successfully");
+
+            try {
+                String uploadDir = "photos/candidate/" + jobSeekerProfile.getUserAccountId();
+                if (!Objects.equals(image.getOriginalFilename(), "")) {
+                    FileUploadUtil.saveFile(uploadDir, imageName, image);
+                    System.out.println("✅ [JobSeeker Profile] Image uploaded");
+                }
+                if (!Objects.equals(pdf.getOriginalFilename(), "")) {
+                    FileUploadUtil.saveFile(uploadDir, resumeName, pdf);
+                    System.out.println("✅ [JobSeeker Profile] PDF uploaded");
+                }
+            }
+            catch (IOException ex) {
+                System.err.println("❌ [JobSeeker Profile] File upload error: " + ex.getMessage());
+                ex.printStackTrace();
+                throw new RuntimeException("Lỗi upload file: " + ex.getMessage(), ex);
+            }
+
+            System.out.println("🔄 [JobSeeker Profile] Redirecting to /dashboard/");
+            return "redirect:/dashboard/";
+            
+        } catch (Exception e) {
+            System.err.println("❌ [JobSeeker Profile] Exception: " + e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("errors", new ArrayList<>(java.util.Arrays.asList("❌ Lỗi cập nhật: " + e.getMessage())));
+            return "job-seeker-profile";
+        }
     }
 
     @GetMapping("/{id}")

@@ -24,6 +24,20 @@
 
     <div class="profile-container shadow-effect">
         <div class="add-job-title"><h2>Thông tin cá nhân</h2></div>
+
+        <!-- ✅ Hiển thị error message từ server -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 8px; border-left: 4px solid #dc3545; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-circle-xmark" style="font-size: 20px;"></i>
+                <div>
+                    <strong>❌ Lỗi cập nhật!</strong>
+                    <br/>
+                    <span th:text="${error}" style="font-size: 14px;"></span>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
         <form id="job-main-form" th:action="@{/recruiter-profile/addNew}" th:object="${profile}" method="post" enctype="multipart/form-data"
         >
             <div class="add-row">
