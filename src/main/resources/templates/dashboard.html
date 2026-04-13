@@ -303,13 +303,16 @@
                             </div>
                             <div class="row-company-name">
 
-                                <label th:text="@{${jobPost.jobCompanyId.name}}"
+                                <label th:text="${jobPost.jobCompanyId.name}" th:if="${jobPost.jobCompanyId.name != null}"
                                 >Company Name</label
                                 >
                             </div>
                             <div class="row-location">
                                 <label
-                                        th:text="${jobPost.jobLocationId.state+', '+ jobPost.jobLocationId.country}"
+                                        th:if="${ (jobPost.jobLocationId.state != null && !#strings.isEmpty(jobPost.jobLocationId.state)) || (jobPost.jobLocationId.country != null && !#strings.isEmpty(jobPost.jobLocationId.country))}"
+                                        th:text="${ ((jobPost.jobLocationId.state != null && !#strings.isEmpty(jobPost.jobLocationId.state)) ? jobPost.jobLocationId.state : '')
+                                                 + ((jobPost.jobLocationId.state != null && !#strings.isEmpty(jobPost.jobLocationId.state)) && (jobPost.jobLocationId.country != null && !#strings.isEmpty(jobPost.jobLocationId.country)) ? ', ' : '')
+                                                 + ((jobPost.jobLocationId.country != null && !#strings.isEmpty(jobPost.jobLocationId.country)) ? jobPost.jobLocationId.country : '')}"
                                 >
                                     City</label
                                 >
@@ -318,7 +321,7 @@
                         </div>
                         <div class="salary"
                              sec:authorize="hasAuthority('Job Seeker')">
-                            <span th:text="${jobPost.salary}">Lương</span>
+                            <span th:text="${jobPost.salary}" th:if="${jobPost.salary != null}"></span>
                         </div>
                         <div class="savejob"
                              sec:authorize="hasAuthority('Job Seeker')"

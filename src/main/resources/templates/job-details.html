@@ -116,7 +116,7 @@
                         <div class="infor-main-icon"><i class="fa-solid fa-sack-dollar"></i></div>
                         <div class="infor-main-content">
                                 <div class="infor-main-content-title">Thu nhập</div>
-                           <div th:text="${jobDetails.salary}">50k - 120k/y></div>
+                           <div th:text="${jobDetails.salary}" th:if="${jobDetails.salary != null}"></div>
                         </div>
                     </div>
                     <div class="infor-main-box">
@@ -130,12 +130,11 @@
                         <div class="infor-main-icon"><i class="fa-solid fa-clock"></i></div>
                         <div class="infor-main-content">
                             <div class="infor-main-content-title">Hình thức</div>
-                            <div th:switch="${jobDetails.jobType}">
+                            <div th:switch="${jobDetails.jobType}" th:if="${jobDetails.jobType != null}">
                                 <span th:case="'Full-time'">Toàn thời gian</span>
                                 <span th:case="'Part-time'">Bán thời gian</span>
                                 <span th:case="'Freelance'">Tự do</span>
                                 <span th:case="'Internship'">Thực tập</span>
-                                <span th:case="*">Không xác định</span>
                             </div>
 
                         </div>
@@ -269,11 +268,16 @@
                 </div>
                 <div class="infor-company-field">
                     <p><i class="fa-solid fa-layer-group" style="margin-right: 5px; color: #343333"></i>Lĩnh vực</p>
-                    <span th:text="${jobDetails.field}">Công nghệ thông tin</span>
+                    <span th:text="${jobDetails.field}" th:if="${jobDetails.field != null}"></span>
                 </div>
                 <div class="infor-company-location">
                     <p><i class="fa-solid fa-location-dot" style="margin-right: 5px"></i>Địa điểm</p>
-                    <span th:text="${jobDetails.jobLocationId.city + ', ' + jobDetails.jobLocationId.state + ', ' + jobDetails.jobLocationId.country}"></span>
+                    <span th:if="${(jobDetails.jobLocationId.city != null && !#strings.isEmpty(jobDetails.jobLocationId.city)) || (jobDetails.jobLocationId.state != null && !#strings.isEmpty(jobDetails.jobLocationId.state)) || (jobDetails.jobLocationId.country != null && !#strings.isEmpty(jobDetails.jobLocationId.country))}"
+                          th:text="${((jobDetails.jobLocationId.city != null && !#strings.isEmpty(jobDetails.jobLocationId.city)) ? jobDetails.jobLocationId.city : '')
+                                   + ((jobDetails.jobLocationId.city != null && !#strings.isEmpty(jobDetails.jobLocationId.city)) && (jobDetails.jobLocationId.state != null && !#strings.isEmpty(jobDetails.jobLocationId.state)) ? ', ' : '')
+                                   + ((jobDetails.jobLocationId.state != null && !#strings.isEmpty(jobDetails.jobLocationId.state)) ? jobDetails.jobLocationId.state : '')
+                                   + (((jobDetails.jobLocationId.city != null && !#strings.isEmpty(jobDetails.jobLocationId.city)) || (jobDetails.jobLocationId.state != null && !#strings.isEmpty(jobDetails.jobLocationId.state))) && (jobDetails.jobLocationId.country != null && !#strings.isEmpty(jobDetails.jobLocationId.country)) ? ', ' : '')
+                                   + ((jobDetails.jobLocationId.country != null && !#strings.isEmpty(jobDetails.jobLocationId.country)) ? jobDetails.jobLocationId.country : '')}"></span>
                 </div>
             </div>
             <div class="request-job">
@@ -282,11 +286,10 @@
                     <div class="request-job-icon"><i class="fa-solid fa-briefcase"></i></div>
                     <div class="request-job-infor">
                         <p>Hình thức làm việc</p>
-                        <span th:switch="${jobDetails.remote}">
+                        <span th:switch="${jobDetails.remote}" th:if="${jobDetails.remote != null}">
                         <span th:case="'Remote-Only'">Làm việc từ xa</span>
                         <span th:case="'Office-Only'">Văn phòng</span>
                         <span th:case="'Partial-Remote'">Kết hợp</span>
-                        <span th:case="*">Không xác định</span>
                         </span>
 
                     </div>
@@ -295,21 +298,21 @@
                     <div class="request-job-icon"><i class="fa-solid fa-users"></i></div>
                     <div class="request-job-infor">
                         <p>Số lượng tuyển</p>
-                        <span th:text="${jobDetails.number}">10</span>
+                        <span th:text="${jobDetails.number}" th:if="${jobDetails.number != null}"></span>
                     </div>
                 </div>
                 <div class="request-job-row">
                     <div class="request-job-icon"><i class="fa-solid fa-graduation-cap"></i></div>
                     <div class="request-job-infor">
                         <p>Trình độ học vấn</p>
-                        <span th:text="${jobDetails.certificateRequired}">Đại học</span>
+                        <span th:text="${jobDetails.certificateRequired}" th:if="${jobDetails.certificateRequired != null}"></span>
                     </div>
                 </div>
                 <div class="request-job-row">
                     <div class="request-job-icon"><i class="fa-solid fa-business-time"></i></div>
                     <div class="request-job-infor">
                         <p>Số năm kinh nghiệm</p>
-                        <span th:text="${jobDetails.experienceRequired + ' năm'}">5 năm</span>
+                        <span th:if="${jobDetails.experienceRequired != null}" th:text="${jobDetails.experienceRequired + ' năm'}"></span>
                     </div>
                 </div>
             </div>
