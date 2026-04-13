@@ -38,51 +38,51 @@ public class UsersService {
     @Transactional
     public Users addNew(Users users) {
         try {
-            // ✅ Validate userTypeId
+            // Validate userTypeId
             if (users.getUserTypeId() == null) {
                 throw new IllegalArgumentException("User type không được để trống");
             }
 
-            // ✅ Set user properties
+            // Set user properties
             users.setActive(true);
             users.setRegistrationDate(new Date(System.currentTimeMillis()));
             users.setPassword(passwordEncoder.encode(users.getPassword()));
             
-            // ✅ Save user trước
-            System.out.println("💾 Saving user: " + users.getEmail());
+            // Save user trước
+            System.out.println("Saving user: " + users.getEmail());
             Users savedUser = usersRepository.save(users);
-            System.out.println("✅ User saved with ID: " + savedUser.getUserId());
+            System.out.println("User saved with ID: " + savedUser.getUserId());
 
-            // ✅ Sau đó mới tạo profile
+            // Sau đó mới tạo profile
             int userTypeId = users.getUserTypeId().getUserTypeId();
-            System.out.println("🔍 User type: " + userTypeId);
+            System.out.println("User type: " + userTypeId);
 
             try {
                 if (userTypeId == 1) {
-                    System.out.println("📋 Creating Recruiter Profile...");
+                    System.out.println("Creating Recruiter Profile...");
                     RecruiterProfile recruiterProfile = new RecruiterProfile(savedUser);
                     recruiterProfileRepository.save(recruiterProfile);
-                    System.out.println("✅ Recruiter profile created");
+                    System.out.println("Recruiter profile created");
                 }
                 else if (userTypeId == 2) {
-                    System.out.println("📋 Creating JobSeeker Profile...");
+                    System.out.println("Creating JobSeeker Profile...");
                     JobSeekerProfile jobSeekerProfile = new JobSeekerProfile(savedUser);
                     jobSeekerProfileRepository.save(jobSeekerProfile);
-                    System.out.println("✅ JobSeeker profile created");
+                    System.out.println("JobSeeker profile created");
                 }
             } catch (Exception profileException) {
-                System.err.println("⚠️ Warning creating profile: " + profileException.getMessage());
+                System.err.println("Warning creating profile: " + profileException.getMessage());
                 profileException.printStackTrace();
-                // ⚠️ Profile creation failed nhưng user đã được tạo
+                // Profile creation failed nhưng user đã được tạo
                 // Profile sẽ được tự động tạo khi getCurrentUserProfile() được gọi
-                System.out.println("ℹ️ Profile will be created automatically on first login");
+                System.out.println("Profile will be created automatically on first login");
             }
 
             return savedUser;
             
         } catch (Exception e) {
             // Catch tất cả exception
-            System.err.println("❌ Error in addNew(): " + e.getMessage());
+            System.err.println("Error in addNew(): " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Lỗi tạo tài khoản: " + e.getMessage(), e);
         }
@@ -98,23 +98,23 @@ public class UsersService {
             int userId = users.getUserId();
             
             if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("Recruiter"))) {
-                // ✅ Tìm hoặc tạo RecruiterProfile
+                // Tìm hoặc tạo RecruiterProfile
                 RecruiterProfile recruiterProfile = recruiterProfileRepository.findById(userId).orElse(null);
                 if (recruiterProfile == null) {
-                    System.out.println("⚠️ RecruiterProfile not found for user: " + username + ". Creating...");
+                    System.out.println("RecruiterProfile not found for user: " + username + ". Creating...");
                     recruiterProfile = new RecruiterProfile(users);
                     recruiterProfile = recruiterProfileRepository.save(recruiterProfile);
-                    System.out.println("✅ RecruiterProfile created automatically");
+                    System.out.println("RecruiterProfile created automatically");
                 }
                 return recruiterProfile;
             } else {
-                // ✅ Tìm hoặc tạo JobSeekerProfile
+                // Tìm hoặc tạo JobSeekerProfile
                 JobSeekerProfile jobSeekerProfile = jobSeekerProfileRepository.findById(userId).orElse(null);
                 if (jobSeekerProfile == null) {
-                    System.out.println("⚠️ JobSeekerProfile not found for user: " + username + ". Creating...");
+                    System.out.println("JobSeekerProfile not found for user: " + username + ". Creating...");
                     jobSeekerProfile = new JobSeekerProfile(users);
                     jobSeekerProfile = jobSeekerProfileRepository.save(jobSeekerProfile);
-                    System.out.println("✅ JobSeekerProfile created automatically");
+                    System.out.println("JobSeekerProfile created automatically");
                 }
                 return jobSeekerProfile;
             }

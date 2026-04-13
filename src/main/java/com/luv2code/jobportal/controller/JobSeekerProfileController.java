@@ -94,25 +94,25 @@ public class JobSeekerProfileController {
             String resumeName = "";
             List<String> errors = new ArrayList<>();
 
-            // ✅ VALIDATION: Kiểm tra CV (bắt buộc)
+            //  VALIDATION: Kiểm tra CV (bắt buộc)
             if (pdf.isEmpty() || Objects.equals(pdf.getOriginalFilename(), "")) {
-                errors.add("❌ CV không được để trống. Vui lòng upload file CV.");
+                errors.add("CV không được để trống. Vui lòng upload file CV.");
             } else {
                 resumeName = StringUtils.cleanPath(Objects.requireNonNull(pdf.getOriginalFilename()));
                 jobSeekerProfile.setResume(resumeName);
             }
 
-            // ✅ VALIDATION: Kiểm tra ảnh (bắt buộc)
+            // VALIDATION: Kiểm tra ảnh (bắt buộc)
             if (image.isEmpty() || Objects.equals(image.getOriginalFilename(), "")) {
-                errors.add("❌ Ảnh đại diện không được để trống. Vui lòng chọn ảnh.");
+                errors.add("Ảnh đại diện không được để trống. Vui lòng chọn ảnh.");
             } else {
                 imageName = StringUtils.cleanPath(Objects.requireNonNull(image.getOriginalFilename()));
                 jobSeekerProfile.setProfilePhoto(imageName);
             }
 
-            // 🚨 Nếu có lỗi validation → Trả về form với error messages
+            // Nếu có lỗi validation → Trả về form với error messages
             if (!errors.isEmpty()) {
-                System.out.println("❌ [JobSeeker Profile] Validation errors: " + errors);
+                System.out.println("[JobSeeker Profile] Validation errors: " + errors);
                 model.addAttribute("errors", errors);
                 JobSeekerProfile currentProfile = jobSeekerProfileService.getOne(jobSeekerProfile.getUserAccountId()).orElse(jobSeekerProfile);
                 model.addAttribute("profile", currentProfile);
@@ -120,32 +120,32 @@ public class JobSeekerProfileController {
             }
 
             JobSeekerProfile seekerProfile = jobSeekerProfileService.addNew(jobSeekerProfile);
-            System.out.println("✅ [JobSeeker Profile] Profile saved successfully");
+            System.out.println("[JobSeeker Profile] Profile saved successfully");
 
             try {
                 String uploadDir = "photos/candidate/" + jobSeekerProfile.getUserAccountId();
                 if (!Objects.equals(image.getOriginalFilename(), "")) {
                     FileUploadUtil.saveFile(uploadDir, imageName, image);
-                    System.out.println("✅ [JobSeeker Profile] Image uploaded");
+                    System.out.println("[JobSeeker Profile] Image uploaded");
                 }
                 if (!Objects.equals(pdf.getOriginalFilename(), "")) {
                     FileUploadUtil.saveFile(uploadDir, resumeName, pdf);
-                    System.out.println("✅ [JobSeeker Profile] PDF uploaded");
+                    System.out.println("[JobSeeker Profile] PDF uploaded");
                 }
             }
             catch (IOException ex) {
-                System.err.println("❌ [JobSeeker Profile] File upload error: " + ex.getMessage());
+                System.err.println("[JobSeeker Profile] File upload error: " + ex.getMessage());
                 ex.printStackTrace();
                 throw new RuntimeException("Lỗi upload file: " + ex.getMessage(), ex);
             }
 
-            System.out.println("🔄 [JobSeeker Profile] Redirecting to /dashboard/");
+            System.out.println("[JobSeeker Profile] Redirecting to /dashboard/");
             return "redirect:/dashboard/";
             
         } catch (Exception e) {
-            System.err.println("❌ [JobSeeker Profile] Exception: " + e.getMessage());
+            System.err.println("[JobSeeker Profile] Exception: " + e.getMessage());
             e.printStackTrace();
-            model.addAttribute("errors", new ArrayList<>(java.util.Arrays.asList("❌ Lỗi cập nhật: " + e.getMessage())));
+            model.addAttribute("errors", new ArrayList<>(java.util.Arrays.asList("Lỗi cập nhật: " + e.getMessage())));
             return "job-seeker-profile";
         }
     }

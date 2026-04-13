@@ -56,7 +56,7 @@ public class RecruiterProfileController {
     @PostMapping("/addNew")
     public String addNew(RecruiterProfile recruiterProfile, @RequestParam("image") MultipartFile multipartFile, Model model) {
         try {
-            System.out.println("📝 [Recruiter Profile] Saving profile...");
+            System.out.println("[Recruiter Profile] Saving profile...");
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             
             if (!(authentication instanceof AnonymousAuthenticationToken)) {
@@ -73,29 +73,29 @@ public class RecruiterProfileController {
                 recruiterProfile.setProfilePhoto(fileName);
             }
             
-            System.out.println("💾 [Recruiter Profile] Saving to database...");
+            System.out.println("[Recruiter Profile] Saving to database...");
             RecruiterProfile savedUser = recruiterProfileService.addNew(recruiterProfile);
-            System.out.println("✅ [Recruiter Profile] Profile saved");
+            System.out.println("[Recruiter Profile] Profile saved");
 
             String uploadDir = "photos/recruiter/" + savedUser.getUserAccountId();
             try {
                 if (!fileName.isEmpty()) {
                     FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
-                    System.out.println("✅ [Recruiter Profile] Image uploaded");
+                    System.out.println("[Recruiter Profile] Image uploaded");
                 }
             } catch (Exception ex) {
-                System.err.println("❌ [Recruiter Profile] File upload error: " + ex.getMessage());
+                System.err.println("[Recruiter Profile] File upload error: " + ex.getMessage());
                 ex.printStackTrace();
                 throw new RuntimeException("Lỗi upload file: " + ex.getMessage(), ex);
             }
 
-            System.out.println("🔄 [Recruiter Profile] Redirecting to /dashboard/");
+            System.out.println("[Recruiter Profile] Redirecting to /dashboard/");
             return "redirect:/dashboard/";
             
         } catch (Exception e) {
-            System.err.println("❌ [Recruiter Profile] Exception: " + e.getMessage());
+            System.err.println("[Recruiter Profile] Exception: " + e.getMessage());
             e.printStackTrace();
-            model.addAttribute("error", "❌ Lỗi cập nhật: " + e.getMessage());
+            model.addAttribute("error", "Lỗi cập nhật: " + e.getMessage());
             model.addAttribute("profile", recruiterProfile);
             return "recruiter_profile";
         }

@@ -46,12 +46,12 @@ public class UsersController {
     @PostMapping("/register/new")
     public String userRegistration(@Valid Users users, Model model) {
         try {
-            System.out.println("🔷 [Register] New user registration attempt: " + users.getEmail());
+            System.out.println("[Register] New user registration attempt: " + users.getEmail());
             
             // Kiểm tra email trùng
             Optional<Users> optionalUsers = usersService.getUserByEmail(users.getEmail());
             if (optionalUsers.isPresent()) {
-                System.out.println("❌ [Register] Email already exists: " + users.getEmail());
+                System.out.println("[Register] Email already exists: " + users.getEmail());
                 model.addAttribute("error", "Email '" + users.getEmail() + "' đã được đăng ký. Vui lòng đăng nhập hoặc sử dụng email khác để tạo tài khoản mới.");
                 List<UsersType> usersTypes = usersTypeService.getAll();
                 model.addAttribute("getAllTypes", usersTypes);
@@ -61,27 +61,27 @@ public class UsersController {
 
             // Kiểm tra userTypeId
             if (users.getUserTypeId() == null || users.getUserTypeId().getUserTypeId() == 0) {
-                System.out.println("❌ [Register] User type not selected");
-                model.addAttribute("error", "❌ Vui lòng chọn loại tài khoản (Ứng viên hoặc Nhà tuyển dụng).");
+                System.out.println("[Register] User type not selected");
+                model.addAttribute("error", "Vui lòng chọn loại tài khoản (Ứng viên hoặc Nhà tuyển dụng).");
                 List<UsersType> usersTypes = usersTypeService.getAll();
                 model.addAttribute("getAllTypes", usersTypes);
                 model.addAttribute("user", users);
                 return "register";
             }
 
-            System.out.println("✅ [Register] Validation passed. Creating account...");
+            System.out.println("[Register] Validation passed. Creating account...");
             // Đăng ký tài khoản
             Users newUser = usersService.addNew(users);
-            System.out.println("✅ [Register] Account created successfully for: " + users.getEmail() + " (ID: " + newUser.getUserId() + ")");
+            System.out.println("[Register] Account created successfully for: " + users.getEmail() + " (ID: " + newUser.getUserId() + ")");
             
-            model.addAttribute("success", "✅ Đăng ký thành công! Vui lòng đăng nhập.");
+            model.addAttribute("success", "Đăng ký thành công! Vui lòng đăng nhập.");
             return "redirect:/login/";
             
         } catch (Exception e) {
-            System.err.println("❌ [Register] Exception during registration: " + e.getMessage());
+            System.err.println("[Register] Exception during registration: " + e.getMessage());
             e.printStackTrace();
             
-            model.addAttribute("error", "❌ Lỗi đăng ký: " + e.getMessage() + ". Vui lòng thử lại.");
+            model.addAttribute("error", "Lỗi đăng ký: " + e.getMessage() + ". Vui lòng thử lại.");
             List<UsersType> usersTypes = usersTypeService.getAll();
             model.addAttribute("getAllTypes", usersTypes);
             model.addAttribute("user", new Users());

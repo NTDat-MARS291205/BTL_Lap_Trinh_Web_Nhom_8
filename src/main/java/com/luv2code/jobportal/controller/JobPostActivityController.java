@@ -42,7 +42,7 @@ public class JobPostActivityController {
         this.jobSeekerSaveService = jobSeekerSaveService;
     }
 
-    /* ======================= DASHBOARD ======================= */
+    // DASHBOARD
 
     @GetMapping("/dashboard/")
     public String searchJobs(Model model,
@@ -84,7 +84,7 @@ public class JobPostActivityController {
         boolean isRecruiter = authentication != null
                 && authentication.getAuthorities().contains(new SimpleGrantedAuthority("Recruiter"));
 
-        // =========== RECRUITER: chỉ xem/tìm trong job của chính mình ===========
+        // RECRUITER
         if (isRecruiter) {
             List<JobPostActivity> jobs;
             boolean noKeyword = !StringUtils.hasText(job) && !StringUtils.hasText(location);
@@ -97,7 +97,7 @@ public class JobPostActivityController {
             return "dashboard";
         }
 
-        // =========== JOB SEEKER: filter đầy đủ (type/remote/date) ===========
+        // JOB SEEKER
         LocalDate searchDate = null;
         boolean dateSearchFlag = true;
         boolean remote = true;
@@ -167,7 +167,7 @@ public class JobPostActivityController {
         return "dashboard";
     }
 
-    /* =================== ADD / EDIT / UPDATE / DELETE =================== */
+    // ADD / EDIT / UPDATE / DELETE
 
     @GetMapping("/dashboard/add")
     public String addJobs(Model model) {
@@ -233,7 +233,7 @@ public class JobPostActivityController {
         }
     }
 
-    /* ======================= GLOBAL SEARCH ======================= */
+    // GLOBAL SEARCH
 
     @GetMapping("/global-search/")
     public String globalSearch(Model model,

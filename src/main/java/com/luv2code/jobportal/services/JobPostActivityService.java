@@ -137,11 +137,10 @@ public class JobPostActivityService {
         jobPostActivityRepository.save(job);
     }
 
-    /**
-     * Xóa job an toàn:
-     * - Kiểm tra quyền sở hữu
-     * - Xóa record con trước (Apply/Save) nếu chưa cấu hình cascade/orphanRemoval tại DB/Entity.
-     */
+    // Xóa job an toàn:
+    // Kiểm tra quyền sở hữu
+    // Xóa record con trước (Apply/Save) nếu chưa cấu hình cascade/orphanRemoval tại DB/Entity.
+
     @Transactional
     public void delete(int id) {
         JobPostActivity job = getOne(id);
@@ -153,10 +152,9 @@ public class JobPostActivityService {
         jobPostActivityRepository.delete(job); // DB đã bật FK ON DELETE CASCADE thì sẽ tự xóa apply/save
     }
 
-    /**
-     * Tìm kiếm chỉ theo thanh search (job + location) và gắn lại cờ isActive/isSaved
-     * cho người dùng hiện tại (nếu là Job Seeker) để UI hiển thị “Đã ứng tuyển/Đã lưu”.
-     */
+    // Tìm kiếm chỉ theo thanh search (job + location) và gắn lại cờ isActive/isSaved
+    // cho người dùng hiện tại (nếu là Job Seeker) để UI hiển thị “Đã ứng tuyển/Đã lưu”.
+
     public List<JobPostActivity> searchOnly(String job, String location) {
         String j = (job == null || job.isBlank()) ? null : job.trim();
         String l = (location == null || location.isBlank()) ? null : location.trim();
@@ -169,14 +167,13 @@ public class JobPostActivityService {
         return decorateWithUserFlags(result);
     }
 
-    /* ===================== gắn cờ applied/saved ===================== */
+    //gắn cờ applied/saved
 
-    /**
-     * Với danh sách job, set lại hai cờ tạm thời:
-     *   - job.setIsActive(true) nếu user hiện tại đã apply job đó
-     *   - job.setIsSaved(true)  nếu user hiện tại đã lưu job đó
-     * Nếu user không phải Job Seeker (VD: Recruiter) thì bỏ qua.
-     */
+    //Với danh sách job, set lại hai cờ tạm thời:
+     //job.setIsActive(true) nếu user hiện tại đã apply job đó
+     //job.setIsSaved(true)  nếu user hiện tại đã lưu job đó
+     //Nếu user không phải Job Seeker (VD: Recruiter) thì bỏ qua.
+
     private List<JobPostActivity> decorateWithUserFlags(List<JobPostActivity> jobs) {
         if (jobs == null || jobs.isEmpty()) return jobs;
 
