@@ -646,12 +646,13 @@ mr-5 {
   bottom: 10px;
   right: 120px;
   border: none;
-  width: 130px;
+  width: 150px;
   height: 30px;
   border-radius: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
+  white-space: nowral;
 }
 
 .applied {
